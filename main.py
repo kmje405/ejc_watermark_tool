@@ -19,7 +19,6 @@ watermark_lengths = {}
 
 def embed_workflow():
     """Embed watermarks into all images in the originals directory."""
-    print("[DEBUG] Starting embedding workflow")
     for image_name in os.listdir(ORIGINALS_DIR):
         if image_name.endswith(('jpg', 'jpeg', 'png')):  # Process only image files
             print(f"[DEBUG] Processing original image: {image_name}")
@@ -31,7 +30,6 @@ def extract_workflow():
     """
     Extract watermarks from all watermarked images.
     """
-    print("[DEBUG] Starting extraction workflow")
 
     for watermarked_image_name in os.listdir(WATERMARKED_DIR):
         if watermarked_image_name.endswith(('jpg', 'jpeg', 'png')):
