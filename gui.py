@@ -2,7 +2,7 @@ import sys
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QTextEdit, QProgressBar, QRadioButton, QButtonGroup
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPixmap
 from utils import embed_watermark, extract_watermark  # Assuming these functions exist in your utils.py
 
 # Worker Thread for processing images without freezing the UI
@@ -52,12 +52,27 @@ class WatermarkApp(QWidget):
 
     def initUI(self):
         # Window settings
-        self.setWindowTitle("Watermark Tool")
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowTitle("Eastland Jones Creative Digital Watermark")
+        self.setGeometry(100, 100, 400, 500)  # Adjust window size to accommodate logo
         self.setAcceptDrops(True)  # Enable drag-and-drop
 
         # Layout
         layout = QVBoxLayout()
+
+        # Add logo to the UI (Correct the path to the logo)
+        logo_label = QLabel(self)
+        logo_path = os.path.join(os.path.dirname(__file__), "logo.png")  # Correct logo path
+        pixmap = QPixmap(logo_path)
+
+        if not pixmap.isNull():  # Ensure the pixmap loaded successfully
+            # Resize the logo (width: 200px, height: 100px as an example)
+            scaled_pixmap = pixmap.scaled(200, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_label.setPixmap(scaled_pixmap)
+            logo_label.setAlignment(Qt.AlignCenter)  # Center the logo
+        else:
+            logo_label.setText("Logo not found")  # Display a fallback message if the logo is missing
+
+        layout.addWidget(logo_label, alignment=Qt.AlignTop | Qt.AlignHCenter)  # Align logo to the top and center
 
         # Radio buttons for choosing Embed or Extract
         self.radio_embed = QRadioButton("Embed Watermark")
@@ -112,8 +127,6 @@ class WatermarkApp(QWidget):
 
         # Create the watermarked folder if it doesn't exist
         os.makedirs(watermarked_folder, exist_ok=True)
-
-        # Reset UI for new process
 
         # Determine whether to embed or extract based on the radio button selection
         mode = "embed" if self.radio_embed.isChecked() else "extract"
