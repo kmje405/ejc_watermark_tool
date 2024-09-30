@@ -2,7 +2,7 @@ import sys
 import pytest
 import os
 from unittest.mock import patch, MagicMock
-import main  # Import the entire main module to access variables like directories and functions
+from main  # Import the entire main module to access variables like directories and functions
 
 # Use the same paths as in main.py
 ORIGINALS_DIR = main.ORIGINALS_DIR
