@@ -1,7 +1,22 @@
 import os
 import sys
+import logging
 from logger import get_len_wm_from_log
 from utils import embed_watermark, extract_watermark
+import blind_watermark as bwm  # Import blind-watermark to close the welcome message
+
+# Close the welcome message
+bwm.bw_notes.close()
+
+
+# Set up logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Set to DEBUG to capture all messages
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),  # Output to console
+    ]
+)
 
 # Define directories relative to the current file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,31 +36,28 @@ def embed_workflow():
     """Embed watermarks into all images in the originals directory."""
     for image_name in os.listdir(ORIGINALS_DIR):
         if image_name.endswith(('jpg', 'jpeg', 'png')):  # Process only image files
-            print(f"[DEBUG] Processing original image: {image_name}")
+            logging.debug(f"Processing original image: {image_name}")
             len_wm = embed_watermark(image_name, ORIGINALS_DIR, WATERMARKED_DIR)
             watermark_lengths[image_name] = len_wm  # Store watermark bit length
-            print(f"[DEBUG] Stored watermark length for {image_name}: {len_wm}")
+            logging.debug(f"Stored watermark length for {image_name}: {len_wm}")
 
 def extract_workflow():
-    """
-    Extract watermarks from all watermarked images.
-    """
-
+    """Extract watermarks from all watermarked images."""
     for watermarked_image_name in os.listdir(WATERMARKED_DIR):
         if watermarked_image_name.endswith(('jpg', 'jpeg', 'png')):
             original_image_name = watermarked_image_name.replace("watermarked_", "")
-            print(f"[DEBUG] Processing watermarked image: {watermarked_image_name}")
+            logging.debug(f"Processing watermarked image: {watermarked_image_name}")
             
             # Retrieve the watermark bit length from the log
             len_wm = get_len_wm_from_log(original_image_name)
             if len_wm:
                 extract_watermark(original_image_name, len_wm, WATERMARKED_DIR)
             else:
-                print(f"[DEBUG] Warning: No watermark length found for {original_image_name}, skipping extraction.")
+                logging.warning(f"No watermark length found for {original_image_name}, skipping extraction.")
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python main.py <embed|extract>")
+        logging.error("Usage: python main.py <embed|extract>")
         sys.exit(1)
 
     mode = sys.argv[1].lower()
@@ -54,7 +66,7 @@ def main():
     elif mode == "extract":
         extract_workflow()
     else:
-        print("Invalid mode. Use 'embed' or 'extract'.")
+        logging.error("Invalid mode. Use 'embed' or 'extract'.")
         sys.exit(1)
 
 if __name__ == "__main__":
