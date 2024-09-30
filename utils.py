@@ -133,8 +133,18 @@ def extract_data_from_watermark(watermark_text, data_type):
     :return: The extracted value.
     """
     if data_type in watermark_text:
-        start_idx = watermark_text.find(data_type) + len(data_type) + 1
+        start_idx = watermark_text.find(data_type) + len(data_type) + 1  # Locate the data value
+        
+        # Check if the value is enclosed in single quotes
+        if watermark_text[start_idx] == "'":
+            # Find the ending quote and extract the value inside
+            start_idx += 1  # Skip the starting single quote
+            end_idx = watermark_text.find("'", start_idx)
+            return watermark_text[start_idx:end_idx].strip()  # Return value inside quotes
+        
+        # Handle non-quoted case
         end_idx = watermark_text.find(" ", start_idx)
-        return watermark_text[start_idx:end_idx].strip()
+        if end_idx == -1:
+            return watermark_text[start_idx:].strip()  # Handle last value in the string
+        return watermark_text[start_idx:end_idx].strip()  # Extract normally if no quotes
     return None
-
