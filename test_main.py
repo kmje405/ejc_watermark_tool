@@ -1,8 +1,12 @@
 import sys
 import pytest
 import os
-from unittest.mock import patch, MagicMock
-from main  # Import the entire main module to access variables like directories and functions
+from unittest.mock import patch
+import main
+
+
+# Add the directory containing 'main.py' to the system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Use the same paths as in main.py
 ORIGINALS_DIR = main.ORIGINALS_DIR
@@ -54,23 +58,21 @@ def test_extract_workflow(mock_makedirs, mock_listdir, mock_get_len_wm_from_log,
     mock_get_len_wm_from_log.assert_any_call("test_image1.jpg")
     mock_get_len_wm_from_log.assert_any_call("test_image2.png")
 
+# Use caplog to capture log output
 @patch("sys.exit")
-def test_invalid_mode(mock_sys_exit, capsys):
+def test_invalid_mode(mock_sys_exit, caplog):
     """Test that an invalid mode exits the program with an error message."""
     # Mock sys.argv to simulate invalid mode input
     with patch.object(sys, 'argv', ["main.py", "invalid_mode"]):
         main.main()
 
-    # Capture printed output
-    captured = capsys.readouterr()
-    
     # Check if sys.exit was called with the correct exit code
     mock_sys_exit.assert_called_once_with(1)
     
-    # Check if the correct error message was printed
+    # Check if the correct error message was logged
+    assert "Invalid mode. Use 'embed' or 'extract'." in caplog.text
 
-    assert "Invalid mode. Use 'embed' or 'extract'." in captured.out
-
+    
 # Test for valid embed mode
 @patch("main.embed_workflow")
 @patch("sys.exit")
